@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="fr-BE">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Frais transport">
+<meta name="theme-color" content="#16233B">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Frais de transport</title>
+<style>
+:root{
+  --encre:#16233B; --papier:#E9ECF1; --carte:#FFFFFF; --trait:#C8CFDA;
+  --doux:#5A667D; --tampon:#B4185C; --vert:#0F7B5F; --ambre:#8A5D00; --r:10px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--papier); color:var(--encre);
+  font:400 17px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  -webkit-text-size-adjust:100%;
+  padding-bottom:calc(78px + env(safe-area-inset-bottom));
+}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--tampon);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+
+header{background:var(--encre);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 18px 20px}
+.mois{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.mois button{background:rgba(255,255,255,.12);border:0;color:#fff;width:40px;height:40px;border-radius:50%;font-size:19px;line-height:1}
+.mois button[disabled]{opacity:.25}
+.mois h1{font-size:19px;font-weight:600;margin:0}
+.total{margin-top:16px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.total .chiffre{font-size:46px;font-weight:700;letter-spacing:-.02em;line-height:1}
+.total .quoi{font-size:14px;color:#B9C4D6}
+.tampon{display:inline-block;margin-top:14px;padding:5px 12px;border:2px solid var(--tampon);
+  border-radius:4px;color:#FF9EC4;font-size:12.5px;font-weight:600;transform:rotate(-1.5deg)}
+
+.zone{padding:18px}
+.zone h2{font-size:15px;font-weight:600;color:var(--doux);margin:0 0 10px}
+.zone h2.suite{margin-top:26px}
+
+/* carte en cours */
+.encours{
+  background:var(--carte);border:1px solid var(--trait);border-radius:var(--r);
+  padding:15px;margin-bottom:10px;border-top:4px solid var(--doux);
+}
+.encours .haut{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.encours .nom{font-weight:600;font-size:17px}
+.encours .reste{font-size:15px;color:var(--doux)}
+.encours .reste b{font-size:26px;color:var(--encre)}
+.jauge{display:flex;gap:4px;margin:12px 0 4px}
+.jauge span{flex:1;height:8px;border-radius:2px;background:var(--trait)}
+.jauge span.plein{background:var(--doux)}
+.encours .bas{display:flex;gap:9px;margin-top:12px}
+.encours .bas button{flex:1}
+.alerte{color:var(--tampon);font-size:13.5px;font-weight:600;margin-top:10px}
+
+/* lignes achats */
+.ticket{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+  background:var(--carte);border:1px solid var(--trait);border-left:0;
+  border-radius:var(--r);padding:12px 14px;margin-bottom:8px;position:relative;
+}
+.ticket::before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:5px;
+  border-left:5px dotted var(--doux);border-radius:2px}
+.ticket .no{flex:0 0 27px;height:27px;border-radius:50%;background:var(--papier);
+  display:grid;place-items:center;font-size:12.5px;color:var(--doux);font-weight:600}
+.ticket .corps{flex:1;min-width:0}
+.ticket .lib{font-weight:600;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ticket .meta{font-size:13.5px;color:var(--doux);display:block;margin-top:1px}
+.ticket .prix{font-weight:700;font-size:17px}
+.pj{font-weight:600}
+.pj.manque{color:var(--tampon)}
+.pj.attente{color:var(--ambre)}
+.pj.ok{color:var(--vert)}
+.vide{background:var(--carte);border:1px dashed var(--trait);border-radius:var(--r);
+  padding:26px 18px;text-align:center;color:var(--doux)}
+.vide strong{display:block;color:var(--encre);margin-bottom:4px}
+
+table.recap{width:100%;border-collapse:collapse;background:var(--carte);border-radius:var(--r);overflow:hidden}
+table.recap th,table.recap td{padding:9px 10px;border-bottom:1px solid var(--trait);font-size:14.5px;text-align:left}
+table.recap th{background:#DFE4EC;font-weight:600;font-size:13px;color:var(--doux)}
+table.recap td.p{text-align:right;font-weight:600}
+.sommes{margin-top:14px;background:var(--carte);border:1px solid var(--trait);border-radius:var(--r);padding:14px}
+.ligne{display:flex;justify-content:space-between;padding:6px 0;font-size:15px}
+.ligne.gros{border-top:1px solid var(--trait);margin-top:6px;padding-top:12px;font-weight:700;font-size:18px}
+.actions{display:grid;gap:9px;margin-top:16px}
+.btn{background:var(--encre);color:#fff;border:0;border-radius:var(--r);padding:14px;font-weight:600;font-size:16px}
+.btn.creux{background:transparent;color:var(--encre);border:1px solid var(--trait)}
+.btn.rouge{background:transparent;color:#D8232A;border:1px solid #D8232A}
+.btn[disabled]{opacity:.45}
+
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:rgba(255,255,255,.94);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  border-top:1px solid var(--trait);padding-bottom:env(safe-area-inset-bottom);z-index:40}
+nav button{flex:1;background:none;border:0;padding:11px 4px 13px;color:var(--doux);
+  font-size:12.5px;display:grid;gap:3px;justify-items:center}
+nav button .ic{font-size:20px;line-height:1}
+nav button[aria-current="page"]{color:var(--encre);font-weight:600}
+
+.voile{position:fixed;inset:0;background:rgba(10,17,30,.45);z-index:50;display:none}
+.voile.on{display:block}
+.feuille{position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--papier);
+  border-radius:18px 18px 0 0;max-height:92vh;overflow:auto;
+  padding:8px 18px calc(24px + env(safe-area-inset-bottom));
+  transform:translateY(100%);transition:transform .22s ease}
+.feuille.on{transform:translateY(0)}
+@media (prefers-reduced-motion:reduce){.feuille{transition:none}}
+.poignee{width:38px;height:4px;background:var(--trait);border-radius:2px;margin:8px auto 14px}
+.feuille h2{font-size:19px;margin:0 0 16px}
+label{display:block;font-size:13.5px;color:var(--doux);margin:14px 0 6px;font-weight:600}
+label.case{display:flex;align-items:center;gap:11px;margin-top:18px;font-size:16px;font-weight:400;color:var(--encre)}
+label.case input{width:23px;height:23px;flex:0 0 auto}
+input[type=text],input[type=date],input[type=number],textarea{
+  width:100%;background:var(--carte);border:1px solid var(--trait);border-radius:var(--r);padding:13px;font-size:17px}
+textarea{min-height:60px;resize:vertical}
+.choix{display:flex;flex-wrap:wrap;gap:8px}
+.choix button{border:1px solid var(--trait);background:var(--carte);border-radius:var(--r);
+  padding:10px 14px;font-size:15px;font-weight:600}
+.choix button[aria-pressed="true"]{background:var(--encre);color:#fff;border-color:transparent}
+.photo{display:flex;align-items:center;gap:12px;margin-top:6px;flex-wrap:wrap}
+.photo img{width:66px;height:66px;object-fit:cover;border-radius:8px;border:1px solid var(--trait)}
+.pastille{display:inline-block;padding:8px 12px;border-radius:8px;background:#DFE4EC;
+  border:1px solid var(--trait);font-size:14px;font-weight:600;color:var(--doux)}
+.aide{font-size:13.5px;color:var(--doux);margin:8px 0 0}
+.guide{background:var(--carte);border:1px solid var(--trait);border-radius:var(--r);padding:4px 16px 16px}
+.guide h3{font-size:16px;margin:20px 0 6px;color:var(--encre)}
+.guide p{font-size:15px;margin:0 0 10px;color:#33405A}
+.guide em{color:var(--encre);font-style:normal;font-weight:600}
+.bienvenue ol{margin:0 0 4px;padding-left:20px}
+.bienvenue li{font-size:15.5px;margin-bottom:9px}
+.pdfs{margin-top:14px}
+.pdfs .ligne{align-items:center}
+.pdfs button{border:1px solid var(--trait);background:var(--carte);border-radius:8px;padding:7px 12px;font-size:14px;font-weight:600}
+.photo .btn{padding:12px 16px;font-size:15px}
+input[type=file]{display:none}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:18px}
+.msg{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%);
+  background:var(--encre);color:#fff;padding:11px 17px;border-radius:22px;font-size:14.5px;
+  z-index:70;opacity:0;pointer-events:none;transition:opacity .2s;max-width:88vw;text-align:center}
+.msg.on{opacity:1}
+
+#impression{display:none}
+@media print{
+  body{background:#fff;padding:0}
+  header,nav,.zone,.voile,.feuille,.msg{display:none !important}
+  #impression{display:block;padding:0 6mm}
+  #impression h1{font-size:15pt;margin:0 0 2mm}
+  #impression .ss{font-size:9.5pt;color:#444;margin:0 0 5mm}
+  #impression table{width:100%;border-collapse:collapse;font-size:9.5pt}
+  #impression th,#impression td{border:1px solid #999;padding:2mm;text-align:left}
+  #impression td.p{text-align:right}
+  #impression tfoot td{font-weight:700}
+  #impression .sig{margin-top:10mm;font-size:9.5pt}
+  .page{break-after:page;page-break-after:always}
+  .page:last-child{break-after:auto;page-break-after:auto}
+  .planche{display:grid;grid-template-columns:repeat(var(--cols,2),1fr);gap:4mm}
+  .planche figure{margin:0;break-inside:avoid;border:1px solid #999;padding:2mm}
+  .planche img{width:100%;height:auto;max-height:var(--hmax,68mm);object-fit:contain}
+  .planche figcaption{font-size:8.5pt;margin-top:1.5mm;font-weight:700}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="mois">
+    <button id="prec" aria-label="Mois précédent">‹</button>
+    <h1 id="titreMois">—</h1>
+    <button id="suiv" aria-label="Mois suivant">›</button>
+  </div>
+  <div class="total">
+    <span class="chiffre num" id="totalMois">0,00 €</span>
+    <span class="quoi" id="compteMois">aucun achat</span>
+  </div>
+  <span class="tampon">à faire rembourser</span>
+</header>
+
+<main>
+  <section class="zone" id="vueCartes">
+    <h2>Cartes en cours</h2>
+    <div id="enCours"></div>
+    <h2 class="suite">Achats du mois</h2>
+    <div id="listeAchats"></div>
+    <div class="actions">
+      <button class="btn" id="nouvelAchat">Enregistrer un achat</button>
+    </div>
+  </section>
+
+  <section class="zone" id="vueRecap" hidden>
+    <h2 id="titreRecap">Récapitulatif</h2>
+    <div id="tableRecap"></div>
+    <div class="sommes" id="sommes"></div>
+    <div class="sommes" id="etatJustif"></div>
+    <label>Justificatifs par page imprimée</label>
+    <div class="choix" id="parPage">
+      <button data-n="2">2 — captures longues</button>
+      <button data-n="4">4 — lisible</button>
+      <button data-n="6">6 — compact</button>
+    </div>
+    <div class="actions">
+      <button class="btn" id="imprDossier">Imprimer le dossier complet</button>
+      <button class="btn creux" id="imprNouveaux">Imprimer les nouveaux justificatifs</button>
+      <button class="btn creux" id="imprRecap">Imprimer la déclaration seule</button>
+      <button class="btn creux" id="imprTout">Réimprimer tous les justificatifs</button>
+      <button class="btn creux" id="exportCsv">Exporter en CSV</button>
+      <button class="btn creux" id="sauvegarde">Sauvegarder toutes les données</button>
+      <button class="btn creux" id="restaurer">Restaurer une sauvegarde</button>
+      <input type="file" id="fichierRestauration" accept="application/json,.json">
+    </div>
+  </section>
+
+  <section class="zone" id="vueTypes" hidden>
+    <h2>Types de carte</h2>
+    <div id="listeTypes"></div>
+    <div class="actions">
+      <button class="btn" id="nouveauType">Ajouter un type de carte</button>
+    </div>
+    <h2 class="suite">En-tête de la déclaration</h2>
+    <div id="apercuEntete" class="vide"></div>
+    <div class="actions">
+      <button class="btn creux" id="modifierEntete">Modifier l'en-tête</button>
+      <button class="btn creux" id="revoirGuide">Revoir le guide de départ</button>
+    </div>
+  </section>
+  <section class="zone" id="vueAide" hidden>
+    <h2>Comment ça marche</h2>
+    <div class="guide">
+      <h3>1. Une fois, au départ</h3>
+      <p>Dans Réglages, crée chaque carte que tu achètes : son nom, son prix habituel, son nombre de trajets. Le prix sera pré-rempli à chaque achat, tu n'auras plus à le retaper.</p>
+      <p>Renseigne aussi l'en-tête de la déclaration : nom, service, et la mention que ton administration attend.</p>
+
+      <h3>2. À chaque achat, sur le moment</h3>
+      <p>Enregistre l'achat et joins le justificatif immédiatement — une capture d'écran du mail de confirmation, ou de la preuve d'achat sur le compte de l'opérateur. C'est le geste qui fait tout le travail : plus rien à retrouver ensuite.</p>
+      <p>Si tu sautes une capture, ce n'est pas perdu. Le mail reste dans ta boîte, et les opérateurs conservent les preuves d'achat plusieurs mois.</p>
+
+      <h3>3. Entre deux achats</h3>
+      <p>Le bouton ＋ 1 trajet décompte ta carte. Quand il reste deux trajets, l'appli te prévient : c'est là qu'il faut penser au justificatif du prochain achat.</p>
+
+      <h3>4. En fin de mois</h3>
+      <p>Dans Récap, <em>Imprimer le dossier complet</em> sort tout en une fois : déclaration, puis justificatifs numérotés. Sur iPhone, écarte deux doigts sur l'aperçu pour obtenir un PDF à envoyer par mail.</p>
+      <p>Le récap signale ce qui manque avant que tu ne déposes : achats sans justificatif, pièces pas encore imprimées.</p>
+
+      <h3>Bon à savoir</h3>
+      <p>Tes données restent sur cet appareil et ne partent nulle part. Elles ne se synchronisent pas avec un autre téléphone ni avec un ordinateur : pour changer d'appareil, utilise Sauvegarder puis Restaurer.</p>
+      <p>Si les captures sont longues, règle l'impression sur 2 ou 4 par page pour rester lisible.</p>
+    </div>
+  </section>
+</main>
+
+<nav>
+  <button data-vue="Cartes" aria-current="page"><span class="ic">🎫</span>Cartes</button>
+  <button data-vue="Recap"><span class="ic">🧾</span>Récap</button>
+  <button data-vue="Types"><span class="ic">⚙️</span>Réglages</button>
+  <button data-vue="Aide"><span class="ic">❔</span>Aide</button>
+</nav>
+
+<div class="voile" id="voile"></div>
+
+<!-- feuille achat -->
+<div class="feuille" id="feuilleAchat" role="dialog" aria-modal="true" aria-labelledby="titreAchat">
+  <div class="poignee"></div>
+  <h2 id="titreAchat">Nouvel achat</h2>
+  <label>Type de carte</label>
+  <div class="choix" id="aTypes"></div>
+  <label for="aDate">Date d'achat</label>
+  <input type="date" id="aDate">
+  <label for="aPrix">Prix payé en euros</label>
+  <input type="number" id="aPrix" inputmode="decimal" step="0.01" min="0" placeholder="0,00">
+  <label>Justificatif</label>
+  <div class="photo">
+    <img id="aApercu" alt="" hidden>
+    <span id="aPdf" class="pastille" hidden>PDF joint</span>
+    <button class="btn creux" id="aPrendre">Ajouter le justificatif</button>
+    <button class="btn creux" id="aRetirer" hidden>Retirer</button>
+  </div>
+  <p class="aide">Capture d'écran du mail de confirmation, de préférence — même format quel que soit le canal d'achat.</p>
+  <input type="file" id="aFichier" accept="image/*,application/pdf">
+  <label class="case"><input type="checkbox" id="aImprime"> Justificatif imprimé et joint au dossier</label>
+  <label for="aNote">Note</label>
+  <textarea id="aNote" placeholder="Lieu d'achat, remarque…"></textarea>
+  <div class="duo">
+    <button class="btn creux" id="aAnnuler">Annuler</button>
+    <button class="btn" id="aEnregistrer">Enregistrer</button>
+  </div>
+  <div class="actions" id="aZoneSuppr" hidden>
+    <button class="btn rouge" id="aSupprimer">Supprimer cet achat</button>
+  </div>
+</div>
+
+<!-- feuille type -->
+<div class="feuille" id="feuilleType" role="dialog" aria-modal="true" aria-labelledby="titreType">
+  <div class="poignee"></div>
+  <h2 id="titreType">Type de carte</h2>
+  <label for="tNom">Nom</label>
+  <input type="text" id="tNom" placeholder="STIB — carte 10 voyages" autocomplete="off">
+  <label for="tPrix">Prix habituel en euros</label>
+  <input type="number" id="tPrix" inputmode="decimal" step="0.01" min="0" placeholder="0,00">
+  <label for="tTrajets">Nombre de trajets par carte</label>
+  <input type="number" id="tTrajets" inputmode="numeric" step="1" min="1" value="10">
+  <div class="duo">
+    <button class="btn creux" id="tAnnuler">Annuler</button>
+    <button class="btn" id="tEnregistrer">Enregistrer</button>
+  </div>
+  <div class="actions" id="tZoneSuppr" hidden>
+    <button class="btn rouge" id="tSupprimer">Supprimer ce type</button>
+  </div>
+</div>
+
+<!-- feuille en-tête -->
+<!-- feuille bienvenue -->
+<div class="feuille bienvenue" id="feuilleBienvenue" role="dialog" aria-modal="true" aria-labelledby="titreBienvenue">
+  <div class="poignee"></div>
+  <h2 id="titreBienvenue">Bienvenue</h2>
+  <p class="aide" style="font-size:15px;color:var(--encre);margin-bottom:14px">
+    Cette appli suit tes achats de titres de transport et prépare ta déclaration de frais. En quatre temps :</p>
+  <ol>
+    <li>Tu crées tes cartes une fois, avec leur prix et leur nombre de trajets.</li>
+    <li>À chaque achat, tu enregistres et tu joins le justificatif sur le moment — une capture d'écran suffit.</li>
+    <li>L'appli décompte tes trajets et te prévient avant que la carte ne soit épuisée.</li>
+    <li>En fin de mois, une seule impression sort la déclaration et tous les justificatifs.</li>
+  </ol>
+  <p class="aide">Tes données restent sur cet appareil.</p>
+  <div class="duo">
+    <button class="btn creux" id="bPlusTard">Plus tard</button>
+    <button class="btn" id="bCommencer">Créer ma première carte</button>
+  </div>
+</div>
+
+<div class="feuille" id="feuilleEntete" role="dialog" aria-modal="true" aria-labelledby="titreEntete">
+  <div class="poignee"></div>
+  <h2 id="titreEntete">En-tête de la déclaration</h2>
+  <label for="eNom">Nom et prénom</label>
+  <input type="text" id="eNom" autocomplete="off">
+  <label for="eService">Service</label>
+  <input type="text" id="eService" autocomplete="off">
+  <label for="eMention">Mention libre</label>
+  <textarea id="eMention" placeholder="Phrase de déclaration, référence interne…"></textarea>
+  <p class="aide">Ce texte s'imprime en tête de la déclaration, tel que tu l'écris ici.</p>
+  <div class="duo">
+    <button class="btn creux" id="eAnnuler">Annuler</button>
+    <button class="btn" id="eEnregistrer">Enregistrer</button>
+  </div>
+</div>
+
+<div class="msg" id="msg" role="status" aria-live="polite"></div>
+<div id="impression"></div>
+
+<script>
+"use strict";
+
+/* =======================================================
+   Stockage local
+   ======================================================= */
+let db = null;
+function ouvrirDB(){
+  return new Promise((ok,ko)=>{
+    const r = indexedDB.open("fraisTransport",3);
+    r.onupgradeneeded = e=>{
+      const d = e.target.result;
+      if(!d.objectStoreNames.contains("achats")) d.createObjectStore("achats",{keyPath:"id"});
+      if(!d.objectStoreNames.contains("types"))  d.createObjectStore("types",{keyPath:"id"});
+      if(!d.objectStoreNames.contains("reglages")) d.createObjectStore("reglages",{keyPath:"id"});
+    };
+    r.onsuccess = ()=>ok(r.result);
+    r.onerror   = ()=>ko(r.error);
+  });
+}
+const magasin = (nom,mode="readonly")=> db.transaction(nom,mode).objectStore(nom);
+const tous   = nom => new Promise((ok,ko)=>{ const r=magasin(nom).getAll(); r.onsuccess=()=>ok(r.result); r.onerror=()=>ko(r.error); });
+const ecrire = (nom,o)=> new Promise((ok,ko)=>{ const r=magasin(nom,"readwrite").put(o); r.onsuccess=()=>ok(); r.onerror=()=>ko(r.error); });
+const effacer= (nom,id)=> new Promise((ok,ko)=>{ const r=magasin(nom,"readwrite").delete(id); r.onsuccess=()=>ok(); r.onerror=()=>ko(r.error); });
+
+/* =======================================================
+   Utilitaires
+   ======================================================= */
+const euro = n => new Intl.NumberFormat("fr-BE",{style:"currency",currency:"EUR"}).format(n||0);
+const nomMois = d => new Intl.DateTimeFormat("fr-BE",{month:"long",year:"numeric"}).format(d);
+const jourLong = s => new Intl.DateTimeFormat("fr-BE",{weekday:"long",day:"numeric",month:"long"}).format(new Date(s+"T12:00:00"));
+const cleMois = d => d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+const aujourdhui = ()=>{ const d=new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
+const uid = ()=> Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const nombre = v => parseFloat(String(v).replace(",","."));
+
+let minuteur;
+function dire(texte){
+  const m = document.getElementById("msg");
+  m.textContent = texte; m.classList.add("on");
+  clearTimeout(minuteur); minuteur = setTimeout(()=>m.classList.remove("on"),3000);
+}
+
+function reduire(fichier){
+  return new Promise(ok=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const ech = Math.min(1, 1400/Math.max(img.width,img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width*ech); c.height = Math.round(img.height*ech);
+      c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+      c.toBlob(b=>{ URL.revokeObjectURL(img.src); ok(b||fichier); },"image/jpeg",0.72);
+    };
+    img.onerror = ()=>ok(fichier);
+    img.src = URL.createObjectURL(fichier);
+  });
+}
+
+/* =======================================================
+   État
+   ======================================================= */
+let achats = [], types = [];
+let entete = {nom:"", service:"", mention:""};
+let moisAffiche = new Date();
+let brouillonAchat = null, brouillonType = null;
+const urls = new Map();
+
+function urlPhoto(a){
+  if(!a.photo) return null;
+  if(!urls.has(a.id)) urls.set(a.id, URL.createObjectURL(a.photo));
+  return urls.get(a.id);
+}
+/* Un PDF ne peut pas être placé sur la planche : il s'imprime tel quel. */
+const estPdf   = a => !!a.photo && (a.typeFichier || a.photo.type || "").includes("pdf");
+const estImage = a => !!a.photo && !estPdf(a);
+function duMois(){
+  const c = cleMois(moisAffiche);
+  return achats.filter(a=>a.date.slice(0,7)===c)
+               .sort((x,y)=> x.date.localeCompare(y.date) || x.cree-y.cree);
+}
+/* Numéro de justificatif figé : encoder un achat oublié ne décale pas ceux déjà imprimés. */
+function prochainNumero(dateStr, sauf){
+  const c = dateStr.slice(0,7);
+  return 1 + achats.filter(a=>a.date.slice(0,7)===c && a.id!==sauf)
+                   .reduce((m,a)=>Math.max(m, a.numero||0), 0);
+}
+function statut(a){
+  if(!a.photo)   return '<span class="pj manque">justificatif à ajouter</span>';
+  if(!a.imprime) return '<span class="pj attente">à imprimer'+(estPdf(a)?" (PDF)":"")+'</span>';
+  return '<span class="pj ok">joint ✓</span>';
+}
+/* Dernier achat non épuisé pour un type donné */
+function carteEnCours(t){
+  return achats.filter(a=>a.typeId===t.id)
+               .sort((x,y)=> y.date.localeCompare(x.date) || y.cree-x.cree)[0] || null;
+}
+
+/* =======================================================
+   Affichage
+   ======================================================= */
+function rendre(){
+  const liste = duMois();
+  const total = liste.reduce((s,a)=>s+Number(a.prix||0),0);
+  const aTraiter = liste.filter(a=>!a.photo || !a.imprime).length;
+  document.getElementById("titreMois").textContent = nomMois(moisAffiche).replace(/^./,c=>c.toUpperCase());
+  document.getElementById("totalMois").textContent = euro(total);
+  document.getElementById("compteMois").textContent =
+    liste.length===0 ? "aucun achat"
+      : (liste.length===1?"1 carte achetée":liste.length+" cartes achetées")
+        + (aTraiter ? " · "+aTraiter+" justificatif"+(aTraiter>1?"s":"")+" à traiter" : " · tout est joint");
+  document.getElementById("suiv").disabled = cleMois(moisAffiche) >= cleMois(new Date());
+  rendreEnCours(); rendreAchats(liste); rendreTypes(); rendreRecap(liste,total);
+}
+
+function rendreEnCours(){
+  const z = document.getElementById("enCours");
+  if(!types.length){
+    z.innerHTML = `<div class="vide"><strong>Aucun type de carte</strong>
+      Va dans Réglages pour créer tes deux cartes, avec leur prix et leur nombre de trajets.</div>`;
+    return;
+  }
+  z.innerHTML = "";
+  types.forEach(t=>{
+    const a = carteEnCours(t);
+    const bloc = document.createElement("div");
+    bloc.className = "encours";
+    if(!a){
+      bloc.innerHTML = `<div class="haut"><span class="nom">${esc(t.nom)}</span>
+        <span class="reste">jamais achetée</span></div>
+        <div class="bas"><button class="btn" data-achat="${t.id}">Enregistrer un achat</button></div>`;
+    }else{
+      const total = a.trajets || t.trajets || 10;
+      const used = Math.min(a.utilises||0, total);
+      const reste = total - used;
+      bloc.innerHTML = `
+        <div class="haut">
+          <span class="nom">${esc(t.nom)}</span>
+          <span class="reste"><b class="num">${reste}</b> / ${total} trajets</span>
+        </div>
+        <div class="jauge">${Array.from({length:total},(_,i)=>
+          `<span class="${i<used?"plein":""}"></span>`).join("")}</div>
+        <div class="reste" style="font-size:13.5px">Achetée le ${a.date.slice(8,10)}/${a.date.slice(5,7)} · ${statut(a)}</div>
+        ${reste<=2 ? `<div class="alerte">${reste===0
+            ? "Carte épuisée — garde le ticket de caisse du prochain achat."
+            : "Bientôt épuisée — pense au ticket de caisse au prochain achat."}</div>`:""}
+        <div class="bas">
+          <button class="btn creux" data-trajet="${a.id}" ${reste===0?"disabled":""}>＋ 1 trajet</button>
+          <button class="btn" data-achat="${t.id}">Racheter</button>
+        </div>`;
+    }
+    z.appendChild(bloc);
+  });
+  z.querySelectorAll("[data-achat]").forEach(b=> b.onclick = ()=>ouvrirAchat(null, b.dataset.achat));
+  z.querySelectorAll("[data-trajet]").forEach(b=> b.onclick = ()=>consommer(b.dataset.trajet));
+}
+
+function rendreAchats(liste){
+  const z = document.getElementById("listeAchats");
+  if(!liste.length){
+    z.innerHTML = `<div class="vide"><strong>Aucun achat ce mois-ci</strong>
+      Chaque achat de carte enregistré ici sera repris dans le récapitulatif.</div>`;
+    return;
+  }
+  let html = "", jour = "";
+  liste.forEach(a=>{
+    if(a.date!==jour){ jour=a.date; html += `<div class="jour" style="margin:18px 0 8px;font-size:13.5px;color:var(--doux);font-weight:600">${esc(jourLong(jour))}</div>`; }
+    html += `<button class="ticket" data-id="${a.id}">
+      <span class="no">${a.numero||"·"}</span>
+      <span class="corps">
+        <span class="lib">${esc(a.nom)}</span>
+        <span class="meta">${statut(a)}</span>
+      </span>
+      <span class="prix num">${euro(a.prix)}</span>
+    </button>`;
+  });
+  z.innerHTML = html;
+  z.querySelectorAll(".ticket").forEach(b=>
+    b.onclick = ()=>ouvrirAchat(achats.find(a=>a.id===b.dataset.id)));
+}
+
+function rendreTypes(){
+  const z = document.getElementById("listeTypes");
+  if(!types.length){
+    z.innerHTML = `<div class="vide"><strong>Rien de configuré</strong>
+      Crée tes deux cartes pour que l'appli pré-remplisse le prix et compte les trajets.</div>`;
+    return;
+  }
+  z.innerHTML = types.map(t=>`<button class="ticket" data-id="${t.id}">
+    <span class="corps"><span class="lib">${esc(t.nom)}</span>
+    <span class="meta">${t.trajets} trajets</span></span>
+    <span class="prix num">${euro(t.prix)}</span></button>`).join("");
+  z.querySelectorAll(".ticket").forEach(b=>
+    b.onclick = ()=>ouvrirType(types.find(t=>t.id===b.dataset.id)));
+}
+
+function rendreRecap(liste,total){
+  document.getElementById("titreRecap").textContent = "Récapitulatif · " + nomMois(moisAffiche);
+  const z = document.getElementById("tableRecap");
+  const b = document.getElementById("imprNouveaux");
+  if(!liste.length){
+    z.innerHTML = `<div class="vide"><strong>Rien à récapituler</strong>Aucun achat pour ce mois.</div>`;
+    document.getElementById("sommes").innerHTML = "";
+    document.getElementById("etatJustif").innerHTML = "";
+    b.disabled = true; b.textContent = "Aucun justificatif en attente";
+    return;
+  }
+  z.innerHTML = `<table class="recap"><thead><tr>
+      <th>N°</th><th>Date</th><th>Carte</th><th style="text-align:right">Montant</th></tr></thead>
+    <tbody>${liste.map(a=>`<tr><td>${a.numero||"—"}</td>
+      <td class="num">${a.date.slice(8,10)}/${a.date.slice(5,7)}</td>
+      <td>${esc(a.nom)}</td><td class="p num">${euro(a.prix)}</td></tr>`).join("")}</tbody></table>`;
+
+  const parType = {};
+  liste.forEach(a=>{ parType[a.nom] = (parType[a.nom]||0)+Number(a.prix||0); });
+  document.getElementById("sommes").innerHTML =
+    Object.entries(parType).map(([n,m])=>
+      `<div class="ligne"><span>${esc(n)}</span><span class="num">${euro(m)}</span></div>`).join("")
+    + `<div class="ligne gros"><span>Total du mois</span><span class="num">${euro(total)}</span></div>`;
+
+  const sansJustif = liste.filter(a=>!a.photo);
+  const imagesAttente = liste.filter(a=>estImage(a) && !a.imprime);
+  const pdfsAttente   = liste.filter(a=>estPdf(a) && !a.imprime);
+  const joints        = liste.filter(a=>a.photo && a.imprime).length;
+  document.getElementById("etatJustif").innerHTML =
+      `<div class="ligne"><span>Déjà imprimés et joints</span><span class="num">${joints}</span></div>`
+    + `<div class="ligne"><span>Images prêtes pour la planche</span><span class="num">${imagesAttente.length}</span></div>`
+    + `<div class="ligne"><span>PDF à imprimer séparément</span><span class="num">${pdfsAttente.length}</span></div>`
+    + `<div class="ligne"><span style="color:${sansJustif.length?"var(--tampon)":"inherit"}">Sans justificatif</span><span class="num">${sansJustif.length}</span></div>`
+    + (sansJustif.length ? `<div class="ligne" style="color:var(--doux);font-size:13.5px;display:block">
+        Achats concernés : ${sansJustif.map(a=>a.date.slice(8,10)+"/"+a.date.slice(5,7)).join(", ")}</div>` : "")
+    + (pdfsAttente.length ? `<div class="pdfs">${pdfsAttente.map(a=>
+        `<div class="ligne"><span>N° ${a.numero} · ${esc(a.nom)}</span>
+         <button data-pdf="${a.id}">Ouvrir</button></div>`).join("")}</div>` : "");
+
+  document.getElementById("etatJustif").querySelectorAll("[data-pdf]").forEach(bt=>
+    bt.onclick = ()=>ouvrirPdf(bt.dataset.pdf));
+
+  b.disabled = imagesAttente.length===0;
+  b.textContent = imagesAttente.length
+    ? `Imprimer les ${imagesAttente.length} nouveaux justificatifs`
+    : "Aucune image en attente";
+}
+
+/* =======================================================
+   Feuilles
+   ======================================================= */
+const voile = document.getElementById("voile");
+const fAchat = document.getElementById("feuilleAchat");
+const fType  = document.getElementById("feuilleType");
+const ouvrirFeuille = f=>{ voile.classList.add("on"); f.classList.add("on"); };
+function fermerFeuilles(){
+  voile.classList.remove("on"); fAchat.classList.remove("on"); fType.classList.remove("on");
+  document.getElementById("feuilleEntete").classList.remove("on");
+  document.getElementById("feuilleBienvenue").classList.remove("on");
+  brouillonAchat = null; brouillonType = null;
+}
+voile.onclick = fermerFeuilles;
+
+function ouvrirAchat(a, typeId){
+  if(!types.length){ dire("Crée d'abord un type de carte dans Réglages."); return; }
+  const t = types.find(x=>x.id===(typeId || (a&&a.typeId))) || types[0];
+  brouillonAchat = a ? {...a} : {
+    id:uid(), typeId:t.id, nom:t.nom, prix:t.prix, trajets:t.trajets,
+    date:aujourdhui(), photo:null, note:"", imprime:false, utilises:0, cree:Date.now()
+  };
+  document.getElementById("titreAchat").textContent = a ? "Modifier l'achat" : "Nouvel achat";
+  document.getElementById("aDate").value = brouillonAchat.date;
+  document.getElementById("aPrix").value = brouillonAchat.prix;
+  document.getElementById("aNote").value = brouillonAchat.note||"";
+  document.getElementById("aImprime").checked = !!brouillonAchat.imprime;
+  choixTypes();
+  apercuAchat();
+  document.getElementById("aZoneSuppr").hidden = !a;
+  ouvrirFeuille(fAchat);
+}
+
+function choixTypes(){
+  const z = document.getElementById("aTypes");
+  z.innerHTML = "";
+  types.forEach(t=>{
+    const b = document.createElement("button");
+    b.textContent = t.nom;
+    b.setAttribute("aria-pressed", String(t.id===brouillonAchat.typeId));
+    b.onclick = ()=>{
+      brouillonAchat.typeId = t.id; brouillonAchat.nom = t.nom; brouillonAchat.trajets = t.trajets;
+      document.getElementById("aPrix").value = t.prix;
+      [...z.children].forEach(x=>x.setAttribute("aria-pressed", String(x===b)));
+    };
+    z.appendChild(b);
+  });
+}
+
+function apercuAchat(){
+  const img = document.getElementById("aApercu");
+  const pdf = document.getElementById("aPdf");
+  const ret = document.getElementById("aRetirer");
+  const a = brouillonAchat;
+  img.hidden = true; pdf.hidden = true; ret.hidden = !(a && a.photo);
+  if(a && estImage(a)){
+    img.src = URL.createObjectURL(a.photo); img.hidden = false;
+    document.getElementById("aPrendre").textContent = "Remplacer le justificatif";
+  }else if(a && estPdf(a)){
+    pdf.textContent = a.nomFichier ? "PDF · "+a.nomFichier.slice(0,26) : "PDF joint";
+    pdf.hidden = false;
+    document.getElementById("aPrendre").textContent = "Remplacer le justificatif";
+  }else{
+    document.getElementById("aPrendre").textContent = "Ajouter le justificatif";
+  }
+}
+
+document.getElementById("aPrendre").onclick = ()=>document.getElementById("aFichier").click();
+document.getElementById("aFichier").onchange = async e=>{
+  const f = e.target.files[0]; if(!f||!brouillonAchat) return;
+  const pdf = (f.type||"").includes("pdf") || /\.pdf$/i.test(f.name||"");
+  brouillonAchat.photo = pdf ? f : await reduire(f);
+  brouillonAchat.typeFichier = pdf ? "application/pdf" : "image/jpeg";
+  brouillonAchat.nomFichier = f.name || "";
+  apercuAchat(); e.target.value = "";
+};
+document.getElementById("aRetirer").onclick = ()=>{
+  if(brouillonAchat){ brouillonAchat.photo=null; brouillonAchat.typeFichier=null; apercuAchat(); }
+};
+document.getElementById("aAnnuler").onclick = fermerFeuilles;
+document.getElementById("nouvelAchat").onclick = ()=>ouvrirAchat(null);
+
+document.getElementById("aEnregistrer").onclick = async ()=>{
+  if(!brouillonAchat) return;
+  const p = nombre(document.getElementById("aPrix").value);
+  if(!(p>0)){ dire("Indique le prix payé pour enregistrer."); return; }
+  brouillonAchat.date = document.getElementById("aDate").value || aujourdhui();
+  brouillonAchat.prix = Math.round(p*100)/100;
+  brouillonAchat.note = document.getElementById("aNote").value.trim();
+  brouillonAchat.imprime = document.getElementById("aImprime").checked;
+  if(!brouillonAchat.numero || brouillonAchat.moisNum !== brouillonAchat.date.slice(0,7)){
+    brouillonAchat.numero = prochainNumero(brouillonAchat.date, brouillonAchat.id);
+    brouillonAchat.moisNum = brouillonAchat.date.slice(0,7);
+  }
+  await ecrire("achats", brouillonAchat);
+  urls.delete(brouillonAchat.id);
+  const i = achats.findIndex(a=>a.id===brouillonAchat.id);
+  if(i>=0) achats[i] = brouillonAchat; else achats.push(brouillonAchat);
+  moisAffiche = new Date(brouillonAchat.date+"T12:00:00");
+  const sansPhoto = !brouillonAchat.photo;
+  fermerFeuilles(); rendre();
+  dire(sansPhoto ? "Achat enregistré — le justificatif reste à joindre." : "Achat enregistré.");
+};
+
+document.getElementById("aSupprimer").onclick = async ()=>{
+  if(!brouillonAchat) return;
+  await effacer("achats", brouillonAchat.id);
+  achats = achats.filter(a=>a.id!==brouillonAchat.id);
+  urls.delete(brouillonAchat.id);
+  fermerFeuilles(); rendre(); dire("Achat supprimé.");
+};
+
+async function consommer(id){
+  const a = achats.find(x=>x.id===id); if(!a) return;
+  const total = a.trajets || 10;
+  a.utilises = Math.min((a.utilises||0)+1, total);
+  await ecrire("achats", a);
+  rendre();
+  const reste = total - a.utilises;
+  dire(reste===0 ? "Carte épuisée. Garde le ticket du prochain achat."
+                 : reste+" trajet"+(reste>1?"s":"")+" restant"+(reste>1?"s":"")+".");
+}
+
+function ouvrirType(t){
+  brouillonType = t ? {...t} : {id:uid(), nom:"", prix:"", trajets:10};
+  document.getElementById("titreType").textContent = t ? "Modifier le type" : "Nouveau type de carte";
+  document.getElementById("tNom").value = brouillonType.nom;
+  document.getElementById("tPrix").value = brouillonType.prix;
+  document.getElementById("tTrajets").value = brouillonType.trajets;
+  document.getElementById("tZoneSuppr").hidden = !t;
+  ouvrirFeuille(fType);
+}
+document.getElementById("nouveauType").onclick = ()=>ouvrirType(null);
+
+const fBienvenue = document.getElementById("feuilleBienvenue");
+async function marquerVu(){
+  try{ await ecrire("reglages",{id:"bienvenueVue", valeur:true}); }catch(e){}
+}
+document.getElementById("bPlusTard").onclick = async ()=>{ await marquerVu(); fermerFeuilles(); };
+document.getElementById("bCommencer").onclick = async ()=>{ await marquerVu(); fermerFeuilles(); ouvrirType(null); };
+document.getElementById("revoirGuide").onclick = ()=> ouvrirFeuille(fBienvenue);
+
+const fEntete = document.getElementById("feuilleEntete");
+function rendreEntete(){
+  const z = document.getElementById("apercuEntete");
+  if(!entete.nom && !entete.service && !entete.mention){
+    z.innerHTML = `<strong>Rien de renseigné</strong>La déclaration s'imprimera sans en-tête.`;
+    return;
+  }
+  z.style.textAlign = "left";
+  z.innerHTML = `<div style="color:var(--encre);font-weight:600">${esc(entete.nom||"—")}</div>`
+    + (entete.service ? `<div style="font-size:14.5px">${esc(entete.service)}</div>` : "")
+    + (entete.mention ? `<div style="font-size:13.5px;margin-top:6px">${esc(entete.mention)}</div>` : "");
+}
+document.getElementById("modifierEntete").onclick = ()=>{
+  document.getElementById("eNom").value = entete.nom||"";
+  document.getElementById("eService").value = entete.service||"";
+  document.getElementById("eMention").value = entete.mention||"";
+  ouvrirFeuille(fEntete);
+};
+document.getElementById("eAnnuler").onclick = fermerFeuilles;
+document.getElementById("eEnregistrer").onclick = async ()=>{
+  entete = {
+    nom: document.getElementById("eNom").value.trim(),
+    service: document.getElementById("eService").value.trim(),
+    mention: document.getElementById("eMention").value.trim()
+  };
+  try{ await ecrire("reglages",{id:"entete", valeur:entete}); }catch(e){}
+  fermerFeuilles(); rendreEntete(); dire("En-tête enregistré.");
+};
+document.getElementById("tAnnuler").onclick = fermerFeuilles;
+
+document.getElementById("tEnregistrer").onclick = async ()=>{
+  if(!brouillonType) return;
+  const nom = document.getElementById("tNom").value.trim();
+  const p = nombre(document.getElementById("tPrix").value);
+  const n = parseInt(document.getElementById("tTrajets").value,10);
+  if(!nom){ dire("Donne un nom à cette carte."); return; }
+  if(!(p>0)){ dire("Indique le prix habituel."); return; }
+  brouillonType.nom = nom;
+  brouillonType.prix = Math.round(p*100)/100;
+  brouillonType.trajets = (n>0? n : 10);
+  await ecrire("types", brouillonType);
+  const i = types.findIndex(t=>t.id===brouillonType.id);
+  if(i>=0) types[i] = brouillonType; else types.push(brouillonType);
+  fermerFeuilles(); rendre(); dire("Type enregistré.");
+};
+
+document.getElementById("tSupprimer").onclick = async ()=>{
+  if(!brouillonType) return;
+  if(achats.some(a=>a.typeId===brouillonType.id)){
+    dire("Des achats utilisent ce type : il reste visible dans l'historique.");
+  }
+  await effacer("types", brouillonType.id);
+  types = types.filter(t=>t.id!==brouillonType.id);
+  fermerFeuilles(); rendre();
+};
+
+/* =======================================================
+   Impression et exports
+   ======================================================= */
+function imprimer(html){
+  document.getElementById("impression").innerHTML = html;
+  setTimeout(()=>window.print(), 60);
+}
+
+function declarationHtml(liste){
+  const total = liste.reduce((s,a)=>s+Number(a.prix||0),0);
+  const parType = {};
+  liste.forEach(a=>{ parType[a.nom] = (parType[a.nom]||0)+Number(a.prix||0); });
+  const e = entete || {};
+  return `<div class="page">
+    <h1>Déclaration de frais de transport — ${esc(nomMois(moisAffiche))}</h1>
+    <p class="ss">${esc(e.nom||"")}${e.service ? " · "+esc(e.service) : ""}</p>
+    ${e.mention ? `<p class="ss">${esc(e.mention)}</p>` : ""}
+    <table>
+      <thead><tr><th>N° justificatif</th><th>Date d'achat</th><th>Carte</th><th>Note</th><th>Montant</th></tr></thead>
+      <tbody>${liste.map(a=>`<tr><td>${a.numero||"—"}</td>
+        <td>${a.date.slice(8,10)}/${a.date.slice(5,7)}/${a.date.slice(0,4)}</td>
+        <td>${esc(a.nom)}</td><td>${esc(a.note||"—")}</td>
+        <td class="p">${euro(a.prix)}</td></tr>`).join("")}</tbody>
+      <tfoot>${Object.entries(parType).map(([n,m])=>
+        `<tr><td colspan="4">Sous-total ${esc(n)}</td><td class="p">${euro(m)}</td></tr>`).join("")}
+        <tr><td colspan="4">Total à rembourser</td><td class="p">${euro(total)}</td></tr></tfoot>
+    </table>
+    <p class="sig">Justificatifs joints : ${liste.filter(a=>a.photo).length} &nbsp;·&nbsp;
+      Date : ……/……/………… &nbsp;·&nbsp; Signature :</p>
+  </div>`;
+}
+
+document.getElementById("imprRecap").onclick = ()=>{
+  const liste = duMois();
+  if(!liste.length){ dire("Aucun achat à imprimer pour ce mois."); return; }
+  imprimer(declarationHtml(liste));
+};
+
+async function ouvrirPdf(id){
+  const a = achats.find(x=>x.id===id); if(!a) return;
+  window.open(urlPhoto(a), "_blank");
+  a.imprime = true; await ecrire("achats", a); rendre();
+  dire("Imprime-le depuis le partage, puis agrafe-le. Décoche si l'impression a échoué.");
+}
+
+const MISE_EN_PAGE = {2:{cols:1,hmax:"104mm"}, 4:{cols:2,hmax:"98mm"}, 6:{cols:2,hmax:"62mm"}};
+let parPage = 4;
+
+function planchesHtml(liste){
+  const mep = MISE_EN_PAGE[parPage] || MISE_EN_PAGE[4];
+  let html = "";
+  const pages = Math.ceil(liste.length/parPage);
+  for(let i=0;i<liste.length;i+=parPage){
+    const page = liste.slice(i,i+parPage);
+    html += `<div class="page">
+      <h1>Justificatifs — ${esc(nomMois(moisAffiche))}</h1>
+      <p class="ss">Les numéros renvoient aux lignes du récapitulatif. Page ${i/parPage+1} sur ${pages}.</p>
+      <div class="planche" style="--cols:${mep.cols};--hmax:${mep.hmax}">${page.map(a=>`<figure>
+        <img src="${urlPhoto(a)}" alt="">
+        <figcaption>N° ${a.numero} · ${a.date.slice(8,10)}/${a.date.slice(5,7)} · ${esc(a.nom)} · ${euro(a.prix)}</figcaption>
+      </figure>`).join("")}</div></div>`;
+  }
+  return html;
+}
+
+function marquerImprimes(liste, message){
+  setTimeout(async ()=>{
+    for(const x of liste){
+      const vrai = achats.find(a=>a.id===x.id);
+      if(vrai){ vrai.imprime = true; await ecrire("achats", vrai); }
+    }
+    rendre();
+    dire(message || "Marqués comme joints. Décoche dans l'achat si l'impression a échoué.");
+  }, 1200);
+}
+
+function imprimerPlanche(liste, marquer){
+  if(!liste.length){ dire("Aucune image de justificatif à imprimer."); return; }
+  imprimer(planchesHtml(liste));
+  if(marquer) marquerImprimes(liste);
+}
+
+document.getElementById("imprDossier").onclick = ()=>{
+  const liste = duMois();
+  if(!liste.length){ dire("Aucun achat pour ce mois."); return; }
+  const images = liste.filter(estImage);
+  imprimer(declarationHtml(liste) + planchesHtml(images));
+  if(images.length) marquerImprimes(images, "Dossier sorti. Les justificatifs images sont marqués joints.");
+  const pdfs = liste.filter(a=>estPdf(a) && !a.imprime).length;
+  if(pdfs) setTimeout(()=>dire(pdfs+" PDF restent à imprimer à part, plus bas dans le récap."), 3400);
+};
+document.querySelectorAll("#parPage button").forEach(b=>{
+  b.onclick = async ()=>{
+    parPage = parseInt(b.dataset.n,10);
+    majParPage();
+    try{ await ecrire("reglages",{id:"parPage", valeur:parPage}); }catch(e){}
+  };
+});
+function majParPage(){
+  document.querySelectorAll("#parPage button").forEach(b=>
+    b.setAttribute("aria-pressed", String(parseInt(b.dataset.n,10)===parPage)));
+}
+
+document.getElementById("imprNouveaux").onclick = ()=> imprimerPlanche(duMois().filter(a=>estImage(a) && !a.imprime), true);
+document.getElementById("imprTout").onclick     = ()=> imprimerPlanche(duMois().filter(a=>estImage(a)), false);
+
+function telecharger(nom, contenu, type){
+  const b = new Blob([contenu],{type});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(b); a.download = nom;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+}
+
+document.getElementById("exportCsv").onclick = ()=>{
+  const liste = duMois();
+  if(!liste.length){ dire("Aucun achat à exporter pour ce mois."); return; }
+  const lignes = [["N°","Date d'achat","Carte","Note","Montant","Ticket photographié","Imprimé"]]
+    .concat(liste.map(a=>[a.numero||"", a.date, a.nom, a.note||"",
+      String(a.prix).replace(".",","), a.photo?"oui":"non", a.imprime?"oui":"non"]));
+  const csv = "\uFEFF"+lignes.map(l=>l.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(";")).join("\r\n");
+  telecharger(`frais-transport-${cleMois(moisAffiche)}.csv`, csv, "text/csv;charset=utf-8");
+  dire("CSV exporté.");
+};
+
+document.getElementById("sauvegarde").onclick = async ()=>{
+  const enB64 = b => new Promise(ok=>{ const r=new FileReader(); r.onload=()=>ok(r.result); r.readAsDataURL(b); });
+  const paquet = {version:2, cree:new Date().toISOString(), types,
+    achats: await Promise.all(achats.map(async a=>({...a, photo: a.photo? await enB64(a.photo): null})))};
+  telecharger(`sauvegarde-frais-transport-${aujourdhui()}.json`, JSON.stringify(paquet), "application/json");
+  dire("Sauvegarde créée.");
+};
+
+/* =======================================================
+   Navigation
+   ======================================================= */
+document.getElementById("restaurer").onclick = ()=>document.getElementById("fichierRestauration").click();
+document.getElementById("fichierRestauration").onchange = async e=>{
+  const f = e.target.files[0]; e.target.value = ""; if(!f) return;
+  try{
+    const paquet = JSON.parse(await f.text());
+    if(!paquet || !Array.isArray(paquet.achats)) throw new Error("format");
+    const combien = paquet.achats.length;
+    if(!confirm(`Restaurer ${combien} achat(s) ? Les achats portant le même identifiant seront remplacés, les autres conservés.`)) return;
+    for(const t of (paquet.types||[])){
+      if(!types.some(x=>x.id===t.id)){ await ecrire("types", t); types.push(t); }
+    }
+    for(const a of paquet.achats){
+      const copie = {...a};
+      if(typeof copie.photo === "string" && copie.photo.startsWith("data:")){
+        copie.photo = await (await fetch(copie.photo)).blob();
+      }else if(typeof copie.photo === "string"){
+        copie.photo = null;
+      }
+      await ecrire("achats", copie);
+      const i = achats.findIndex(x=>x.id===copie.id);
+      if(i>=0) achats[i] = copie; else achats.push(copie);
+      urls.delete(copie.id);
+    }
+    rendre();
+    dire(combien+" achat(s) restauré(s).");
+  }catch(err){
+    dire("Fichier illisible — choisis une sauvegarde créée par l'appli.");
+  }
+};
+
+document.querySelectorAll("nav button").forEach(b=>{
+  b.onclick = ()=>{
+    document.querySelectorAll("nav button").forEach(x=>x.removeAttribute("aria-current"));
+    b.setAttribute("aria-current","page");
+    ["Cartes","Recap","Types","Aide"].forEach(v=>{ document.getElementById("vue"+v).hidden = (v!==b.dataset.vue); });
+    window.scrollTo(0,0);
+  };
+});
+document.getElementById("prec").onclick = ()=>{ moisAffiche.setDate(1); moisAffiche.setMonth(moisAffiche.getMonth()-1); rendre(); };
+document.getElementById("suiv").onclick = ()=>{ moisAffiche.setDate(1); moisAffiche.setMonth(moisAffiche.getMonth()+1); rendre(); };
+
+/* Hors ligne : uniquement en HTTPS (ou en local). Sans service worker,
+   l'appli fonctionne normalement mais exige une connexion pour se charger. */
+if("serviceWorker" in navigator &&
+   (location.protocol === "https:" || location.hostname === "localhost")){
+  window.addEventListener("load", ()=>{
+    navigator.serviceWorker.register("./sw.js").catch(()=>{});
+  });
+}
+
+/* =======================================================
+   Démarrage
+   ======================================================= */
+(async ()=>{
+  try{
+    db = await ouvrirDB();
+    achats = await tous("achats");
+    types  = await tous("types");
+    try{
+      const r = (await tous("reglages"));
+      const p = r.find(x=>x.id==="parPage");
+      if(p && MISE_EN_PAGE[p.valeur]) parPage = p.valeur;
+      const e = r.find(x=>x.id==="entete");
+      if(e && e.valeur) entete = e.valeur;
+      var dejaVu = !!r.find(x=>x.id==="bienvenueVue");
+    }catch(e){}
+    majParPage();
+    rendreEntete();
+    if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{});
+    rendre();
+    if(!dejaVu && !types.length && !achats.length) ouvrirFeuille(fBienvenue);
+  }catch(e){
+    document.getElementById("enCours").innerHTML =
+      `<div class="vide"><strong>Le stockage est indisponible</strong>
+       Ouvre l'appli depuis une adresse web ou depuis l'écran d'accueil de l'iPhone pour que les données soient conservées.</div>`;
+  }
+})();
+</script>
+</body>
+</html>
