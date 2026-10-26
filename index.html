@@ -165,27 +165,27 @@ input[type=file]{display:none}
   .planche figcaption{font-size:8.5pt;margin-top:1.5mm;font-weight:700}
 
   /* Formulaire officiel de la commune */
-  #impression .formulaire{font:11pt/1.38 Arial,Helvetica,sans-serif;color:#000;padding:2mm 6mm 0}
-  #impression .formulaire p{margin:0 0 4mm}
+  #impression .formulaire{font:10.5pt/1.32 Arial,Helvetica,sans-serif;color:#000;padding:0 4mm}
+  #impression .formulaire p{margin:0 0 2.8mm}
   #impression .formulaire .feuillet{font-size:8.5pt;text-align:right;margin:0 0 2mm;color:#444}
   #impression .formulaire h1.f-titre{font:700 14pt/1.2 "Times New Roman",Times,serif;color:#1F2A5C;
-    text-align:center;margin:0 0 9mm;letter-spacing:-.02em;white-space:nowrap}
+    text-align:center;margin:0 0 6mm;letter-spacing:-.02em;white-space:nowrap}
   #impression .formulaire .f-id{display:flex;justify-content:space-between;gap:3mm;margin-bottom:1mm}
   #impression .formulaire .f-id > span{white-space:nowrap}
   #impression .formulaire .pts{display:inline-block;border-bottom:1.3px dotted #000;height:1em;vertical-align:baseline;margin-left:1mm}
   #impression .formulaire .pts.l{width:82mm} #impression .formulaire .pts.c{width:28mm} #impression .formulaire .pts.m{width:68mm}
   #impression .formulaire .rempli{font-weight:700;padding:0 1.5mm}
-  #impression .formulaire .f-statut{font-size:10.5pt}
-  #impression .formulaire .f-certif{font-weight:700;margin-top:6mm}
+  #impression .formulaire .f-statut{font-size:10pt}
+  #impression .formulaire .f-certif{font-weight:700;margin-top:4mm}
   #impression .formulaire .f-le{margin:0 0 0 72mm}
-  #impression .formulaire .f-signature{margin:9mm 0 13mm 72mm}
-  #impression .formulaire table.f-table{width:86%;margin:5mm 0 0 5mm;border-collapse:collapse;font-size:10pt}
-  #impression .formulaire .f-table th,#impression .formulaire .f-table td{border:1px solid #000;padding:1.3mm 2mm;height:6.6mm}
+  #impression .formulaire .f-signature{margin:6mm 0 9mm 72mm}
+  #impression .formulaire table.f-table{width:86%;margin:3mm 0 0 5mm;border-collapse:collapse;font-size:10pt}
+  #impression .formulaire .f-table th,#impression .formulaire .f-table td{border:1px solid #000;padding:1mm 2mm;height:5.8mm}
   #impression .formulaire .f-table th{font-size:8.5pt;font-weight:700;text-align:center}
   #impression .formulaire .f-table td.n{width:13%}
   #impression .formulaire .f-table td.p{text-align:right}
   #impression .formulaire .renvoi{font-size:8.5pt;color:#333}
-  #impression .formulaire .f-total{width:96%;text-align:right;margin-top:3mm}
+  #impression .formulaire .f-total{width:96%;text-align:right;margin-top:2.5mm;break-inside:avoid}
   #impression .formulaire .f-case{display:inline-block;min-width:27mm;border:1px solid #000;
     padding:1mm 2mm;margin-left:3mm;text-align:right;font-weight:700}
 }
@@ -789,7 +789,8 @@ const dateCourte = s => s.slice(8,10)+"/"+s.slice(5,7)+"/"+s.slice(0,4);
 
 function formulaireHtml(liste){
   const total   = liste.reduce((s,a)=>s+Number(a.prix||0),0);
-  const annexes = liste.filter(a=>a.photo).length;
+  /* Un justificatif par achat, qu'il soit joint dans l'appli ou imprimé à part */
+  const annexes = liste.length;
   const lots = [];
   for(let i=0;i<liste.length;i+=LIGNES_FORMULAIRE) lots.push(liste.slice(i,i+LIGNES_FORMULAIRE));
   if(!lots.length) lots.push([]);
