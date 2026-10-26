@@ -3,7 +3,7 @@
    les mises à jour), depuis le cache sinon. Les icônes viennent du cache d'abord.
    Après chaque modification de l'appli, incrémente VERSION. */
 
-const VERSION = "v4";
+const VERSION = "v5";
 const CACHE = "frais-transport-" + VERSION;
 
 const FICHIERS = [

@@ -773,9 +773,20 @@ document.getElementById("tSupprimer").onclick = async ()=>{
 /* =======================================================
    Impression et exports
    ======================================================= */
-function imprimer(html){
-  document.getElementById("impression").innerHTML = html;
-  setTimeout(()=>window.print(), 60);
+/* Attendre que toutes les captures soient décodées avant d'ouvrir l'impression :
+   sinon Safari peut imprimer des cadres vides. */
+async function imprimer(html){
+  const zone = document.getElementById("impression");
+  zone.innerHTML = html;
+  const imgs = [...zone.querySelectorAll("img")];
+  await Promise.all(imgs.map(img=>
+    (img.decode ? img.decode() : Promise.resolve()).catch(()=>new Promise(ok=>{
+      if(img.complete) return ok();
+      img.onload = img.onerror = ()=>ok();
+    }))
+  ));
+  await new Promise(ok=>requestAnimationFrame(()=>requestAnimationFrame(ok)));
+  window.print();
 }
 
 /* Formulaire officiel « Intervention dans les frais de déplacement par le biais
