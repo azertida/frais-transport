@@ -9,7 +9,7 @@ Elle fonctionne dans le navigateur, sans compte ni serveur. Les données restent
 - Enregistrer chaque achat de carte, avec son justificatif (photo, capture d'écran ou PDF)
 - Décompter les trajets restants sur la carte en cours et prévenir avant qu'elle ne soit épuisée
 - Signaler les achats sans justificatif et les pièces pas encore imprimées
-- Sortir en une seule impression la déclaration du mois suivie des justificatifs numérotés
+- Sortir en une seule impression le formulaire officiel de la commune pré-rempli (mois, tableau, montant, nombre d'annexes), suivi des justificatifs numérotés ; identité, date, signature et visa se complètent à la main
 - Exporter en CSV, sauvegarder et restaurer l'ensemble des données
 
 ## Fichiers

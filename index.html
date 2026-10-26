@@ -163,6 +163,31 @@ input[type=file]{display:none}
   .planche figure{margin:0;break-inside:avoid;border:1px solid #999;padding:2mm}
   .planche img{width:100%;height:auto;max-height:var(--hmax,68mm);object-fit:contain}
   .planche figcaption{font-size:8.5pt;margin-top:1.5mm;font-weight:700}
+
+  /* Formulaire officiel de la commune */
+  #impression .formulaire{font:11pt/1.38 Arial,Helvetica,sans-serif;color:#000;padding:2mm 6mm 0}
+  #impression .formulaire p{margin:0 0 4mm}
+  #impression .formulaire .feuillet{font-size:8.5pt;text-align:right;margin:0 0 2mm;color:#444}
+  #impression .formulaire h1.f-titre{font:700 14pt/1.2 "Times New Roman",Times,serif;color:#1F2A5C;
+    text-align:center;margin:0 0 9mm;letter-spacing:-.02em;white-space:nowrap}
+  #impression .formulaire .f-id{display:flex;justify-content:space-between;gap:3mm;margin-bottom:1mm}
+  #impression .formulaire .f-id > span{white-space:nowrap}
+  #impression .formulaire .pts{display:inline-block;border-bottom:1.3px dotted #000;height:1em;vertical-align:baseline;margin-left:1mm}
+  #impression .formulaire .pts.l{width:82mm} #impression .formulaire .pts.c{width:28mm} #impression .formulaire .pts.m{width:68mm}
+  #impression .formulaire .rempli{font-weight:700;padding:0 1.5mm}
+  #impression .formulaire .f-statut{font-size:10.5pt}
+  #impression .formulaire .f-certif{font-weight:700;margin-top:6mm}
+  #impression .formulaire .f-le{margin:0 0 0 72mm}
+  #impression .formulaire .f-signature{margin:9mm 0 13mm 72mm}
+  #impression .formulaire table.f-table{width:86%;margin:5mm 0 0 5mm;border-collapse:collapse;font-size:10pt}
+  #impression .formulaire .f-table th,#impression .formulaire .f-table td{border:1px solid #000;padding:1.3mm 2mm;height:6.6mm}
+  #impression .formulaire .f-table th{font-size:8.5pt;font-weight:700;text-align:center}
+  #impression .formulaire .f-table td.n{width:13%}
+  #impression .formulaire .f-table td.p{text-align:right}
+  #impression .formulaire .renvoi{font-size:8.5pt;color:#333}
+  #impression .formulaire .f-total{width:96%;text-align:right;margin-top:3mm}
+  #impression .formulaire .f-case{display:inline-block;min-width:27mm;border:1px solid #000;
+    padding:1mm 2mm;margin-left:3mm;text-align:right;font-weight:700}
 }
 </style>
 </head>
@@ -206,7 +231,7 @@ input[type=file]{display:none}
     <div class="actions">
       <button class="btn" id="imprDossier">Imprimer le dossier complet</button>
       <button class="btn creux" id="imprNouveaux">Imprimer les nouveaux justificatifs</button>
-      <button class="btn creux" id="imprRecap">Imprimer la déclaration seule</button>
+      <button class="btn creux" id="imprRecap">Imprimer le formulaire seul</button>
       <button class="btn creux" id="imprTout">Réimprimer tous les justificatifs</button>
       <button class="btn creux" id="exportCsv">Exporter en CSV</button>
       <button class="btn creux" id="sauvegarde">Sauvegarder toutes les données</button>
@@ -221,10 +246,7 @@ input[type=file]{display:none}
     <div class="actions">
       <button class="btn" id="nouveauType">Ajouter un type de carte</button>
     </div>
-    <h2 class="suite">En-tête de la déclaration</h2>
-    <div id="apercuEntete" class="vide"></div>
     <div class="actions">
-      <button class="btn creux" id="modifierEntete">Modifier l'en-tête</button>
       <button class="btn creux" id="revoirGuide">Revoir le guide de départ</button>
     </div>
   </section>
@@ -233,7 +255,6 @@ input[type=file]{display:none}
     <div class="guide">
       <h3>1. Une fois, au départ</h3>
       <p>Dans Réglages, crée chaque carte que tu achètes : son nom, son prix habituel, son nombre de trajets. Le prix sera pré-rempli à chaque achat, tu n'auras plus à le retaper.</p>
-      <p>Renseigne aussi l'en-tête de la déclaration : nom, service, et la mention que ton administration attend.</p>
 
       <h3>2. À chaque achat, sur le moment</h3>
       <p>Enregistre l'achat et joins le justificatif immédiatement — une capture d'écran du mail de confirmation, ou de la preuve d'achat sur le compte de l'opérateur. C'est le geste qui fait tout le travail : plus rien à retrouver ensuite.</p>
@@ -243,7 +264,8 @@ input[type=file]{display:none}
       <p>Le bouton ＋ 1 trajet décompte ta carte. Quand il reste deux trajets, l'appli te prévient : c'est là qu'il faut penser au justificatif du prochain achat.</p>
 
       <h3>4. En fin de mois</h3>
-      <p>Dans Récap, <em>Imprimer le dossier complet</em> sort tout en une fois : déclaration, puis justificatifs numérotés. Sur iPhone, écarte deux doigts sur l'aperçu pour obtenir un PDF à envoyer par mail.</p>
+      <p>Dans Récap, <em>Imprimer le dossier complet</em> sort tout en une fois : le formulaire officiel pré-rempli (mois, tableau, montant, nombre d'annexes), puis les justificatifs numérotés. Sur iPhone, écarte deux doigts sur l'aperçu pour obtenir un PDF.</p>
+      <p>Sur le formulaire, complète à la main ton nom, ton matricule, ton service et la date, signe, puis fais viser par ton chef de service avant de remettre le dossier.</p>
       <p>Le récap signale ce qui manque avant que tu ne déposes : achats sans justificatif, pièces pas encore imprimées.</p>
 
       <h3>Bon à savoir</h3>
@@ -323,28 +345,12 @@ input[type=file]{display:none}
     <li>Tu crées tes cartes une fois, avec leur prix et leur nombre de trajets.</li>
     <li>À chaque achat, tu enregistres et tu joins le justificatif sur le moment — une capture d'écran suffit.</li>
     <li>L'appli décompte tes trajets et te prévient avant que la carte ne soit épuisée.</li>
-    <li>En fin de mois, une seule impression sort la déclaration et tous les justificatifs.</li>
+    <li>En fin de mois, une seule impression sort le formulaire de la commune pré-rempli et tous les justificatifs.</li>
   </ol>
   <p class="aide">Tes données restent sur cet appareil.</p>
   <div class="duo">
     <button class="btn creux" id="bPlusTard">Plus tard</button>
     <button class="btn" id="bCommencer">Créer ma première carte</button>
-  </div>
-</div>
-
-<div class="feuille" id="feuilleEntete" role="dialog" aria-modal="true" aria-labelledby="titreEntete">
-  <div class="poignee"></div>
-  <h2 id="titreEntete">En-tête de la déclaration</h2>
-  <label for="eNom">Nom et prénom</label>
-  <input type="text" id="eNom" autocomplete="off">
-  <label for="eService">Service</label>
-  <input type="text" id="eService" autocomplete="off">
-  <label for="eMention">Mention libre</label>
-  <textarea id="eMention" placeholder="Phrase de déclaration, référence interne…"></textarea>
-  <p class="aide">Ce texte s'imprime en tête de la déclaration, tel que tu l'écris ici.</p>
-  <div class="duo">
-    <button class="btn creux" id="eAnnuler">Annuler</button>
-    <button class="btn" id="eEnregistrer">Enregistrer</button>
   </div>
 </div>
 
@@ -415,7 +421,6 @@ function reduire(fichier){
    État
    ======================================================= */
 let achats = [], types = [];
-let entete = {nom:"", service:"", mention:""};
 let moisAffiche = new Date();
 let brouillonAchat = null, brouillonType = null;
 const urls = new Map();
@@ -605,7 +610,6 @@ const fType  = document.getElementById("feuilleType");
 const ouvrirFeuille = f=>{ voile.classList.add("on"); f.classList.add("on"); };
 function fermerFeuilles(){
   voile.classList.remove("on"); fAchat.classList.remove("on"); fType.classList.remove("on");
-  document.getElementById("feuilleEntete").classList.remove("on");
   document.getElementById("feuilleBienvenue").classList.remove("on");
   brouillonAchat = null; brouillonType = null;
 }
@@ -738,34 +742,6 @@ document.getElementById("bPlusTard").onclick = async ()=>{ await marquerVu(); fe
 document.getElementById("bCommencer").onclick = async ()=>{ await marquerVu(); fermerFeuilles(); ouvrirType(null); };
 document.getElementById("revoirGuide").onclick = ()=> ouvrirFeuille(fBienvenue);
 
-const fEntete = document.getElementById("feuilleEntete");
-function rendreEntete(){
-  const z = document.getElementById("apercuEntete");
-  if(!entete.nom && !entete.service && !entete.mention){
-    z.innerHTML = `<strong>Rien de renseigné</strong>La déclaration s'imprimera sans en-tête.`;
-    return;
-  }
-  z.style.textAlign = "left";
-  z.innerHTML = `<div style="color:var(--encre);font-weight:600">${esc(entete.nom||"—")}</div>`
-    + (entete.service ? `<div style="font-size:14.5px">${esc(entete.service)}</div>` : "")
-    + (entete.mention ? `<div style="font-size:13.5px;margin-top:6px">${esc(entete.mention)}</div>` : "");
-}
-document.getElementById("modifierEntete").onclick = ()=>{
-  document.getElementById("eNom").value = entete.nom||"";
-  document.getElementById("eService").value = entete.service||"";
-  document.getElementById("eMention").value = entete.mention||"";
-  ouvrirFeuille(fEntete);
-};
-document.getElementById("eAnnuler").onclick = fermerFeuilles;
-document.getElementById("eEnregistrer").onclick = async ()=>{
-  entete = {
-    nom: document.getElementById("eNom").value.trim(),
-    service: document.getElementById("eService").value.trim(),
-    mention: document.getElementById("eMention").value.trim()
-  };
-  try{ await ecrire("reglages",{id:"entete", valeur:entete}); }catch(e){}
-  fermerFeuilles(); rendreEntete(); dire("En-tête enregistré.");
-};
 document.getElementById("tAnnuler").onclick = fermerFeuilles;
 
 document.getElementById("tEnregistrer").onclick = async ()=>{
@@ -802,34 +778,61 @@ function imprimer(html){
   setTimeout(()=>window.print(), 60);
 }
 
-function declarationHtml(liste){
-  const total = liste.reduce((s,a)=>s+Number(a.prix||0),0);
-  const parType = {};
-  liste.forEach(a=>{ parType[a.nom] = (parType[a.nom]||0)+Number(a.prix||0); });
-  const e = entete || {};
-  return `<div class="page">
-    <h1>Déclaration de frais de transport — ${esc(nomMois(moisAffiche))}</h1>
-    <p class="ss">${esc(e.nom||"")}${e.service ? " · "+esc(e.service) : ""}</p>
-    ${e.mention ? `<p class="ss">${esc(e.mention)}</p>` : ""}
-    <table>
-      <thead><tr><th>N° justificatif</th><th>Date d'achat</th><th>Carte</th><th>Note</th><th>Montant</th></tr></thead>
-      <tbody>${liste.map(a=>`<tr><td>${a.numero||"—"}</td>
-        <td>${a.date.slice(8,10)}/${a.date.slice(5,7)}/${a.date.slice(0,4)}</td>
-        <td>${esc(a.nom)}</td><td>${esc(a.note||"—")}</td>
-        <td class="p">${euro(a.prix)}</td></tr>`).join("")}</tbody>
-      <tfoot>${Object.entries(parType).map(([n,m])=>
-        `<tr><td colspan="4">Sous-total ${esc(n)}</td><td class="p">${euro(m)}</td></tr>`).join("")}
-        <tr><td colspan="4">Total à rembourser</td><td class="p">${euro(total)}</td></tr></tfoot>
-    </table>
-    <p class="sig">Justificatifs joints : ${liste.filter(a=>a.photo).length} &nbsp;·&nbsp;
-      Date : ……/……/………… &nbsp;·&nbsp; Signature :</p>
-  </div>`;
+/* Formulaire officiel « Intervention dans les frais de déplacement par le biais
+   de transports en commun ». L'appli remplit le mois, le tableau, le montant et
+   le nombre d'annexes. Identité, matricule, service, date, signature et visa
+   restent en blanc : ils se complètent à la main.
+   Le tableau a 9 lignes ; au-delà, un second feuillet est imprimé. */
+const LIGNES_FORMULAIRE = 9;
+const montantNu = n => new Intl.NumberFormat("fr-BE",{minimumFractionDigits:2,maximumFractionDigits:2}).format(n||0);
+const dateCourte = s => s.slice(8,10)+"/"+s.slice(5,7)+"/"+s.slice(0,4);
+
+function formulaireHtml(liste){
+  const total   = liste.reduce((s,a)=>s+Number(a.prix||0),0);
+  const annexes = liste.filter(a=>a.photo).length;
+  const lots = [];
+  for(let i=0;i<liste.length;i+=LIGNES_FORMULAIRE) lots.push(liste.slice(i,i+LIGNES_FORMULAIRE));
+  if(!lots.length) lots.push([]);
+
+  return lots.map((lot,k)=>{
+    const debut = k*LIGNES_FORMULAIRE;
+    const sousTotal = lot.reduce((s,a)=>s+Number(a.prix||0),0);
+    const lignes = Array.from({length:LIGNES_FORMULAIRE},(_,j)=>{
+      const n = debut+j+1, a = lot[j];
+      if(!a) return `<tr><td class="n">${n}</td><td></td><td></td><td></td></tr>`;
+      /* Si un achat a été supprimé, le n° de ligne peut différer du n° de justificatif */
+      const renvoi = a.numero && a.numero!==n ? ` <span class="renvoi">(justificatif n° ${a.numero})</span>` : "";
+      return `<tr><td class="n">${n}</td><td>${esc(a.nom)}${renvoi}</td>
+        <td>${dateCourte(a.date)}</td><td class="p">${euro(a.prix)}</td></tr>`;
+    }).join("");
+
+    return `<div class="page formulaire">
+      ${lots.length>1 ? `<p class="feuillet">Feuillet ${k+1} sur ${lots.length}</p>` : ""}
+      <h1 class="f-titre">Intervention dans les frais de déplacement par le biais de transports en commun</h1>
+      <p class="f-id"><span>Je soussigné (e)<span class="pts l"></span></span><span>Matricule :<span class="pts c"></span></span></p>
+      <p>Service :<span class="pts m"></span></p>
+      <p>déclare sur l'honneur avoir utilisé les <b>transports en commun</b> pour effectuer les déplacements de mon domicile à mon lieu de travail et inversement.</p>
+      <p>Déplacements effectués durant le mois de <span class="rempli">${esc(nomMois(moisAffiche))}</span></p>
+      <p class="f-statut">Le statut administratif et pécuniaire stipule en effet que le personnel communal non enseignant bénéficie d'une intervention dans les frais de déplacements dans la même mesure que le personnel de l'Etat. Les abonnements annuels souscrits par les membres du personnel non enseignant pour les transports en commun seront remboursés mensuellement à terme échu à raison d'1/12 du prix annuel de ces abonnements.</p>
+      <p>Par conséquent, je sollicite, suivant le tableau repris ci-dessous, le remboursement desdits frais, soit <span class="rempli">${montantNu(total)}</span> €.</p>
+      <p class="f-certif">Certifié sincère et complet.</p>
+      <p class="f-le">Le</p>
+      <p class="f-signature">Signature</p>
+      <p>Annexes : <span class="rempli">${annexes}</span></p>
+      <p>Visa du Chef de Service</p>
+      <table class="f-table">
+        <thead><tr><th></th><th>Intitulé titre de transport</th><th>Période</th><th>Coût</th></tr></thead>
+        <tbody>${lignes}</tbody>
+      </table>
+      <div class="f-total">Total :<span class="f-case">${euro(sousTotal)}</span></div>
+    </div>`;
+  }).join("");
 }
 
 document.getElementById("imprRecap").onclick = ()=>{
   const liste = duMois();
   if(!liste.length){ dire("Aucun achat à imprimer pour ce mois."); return; }
-  imprimer(declarationHtml(liste));
+  imprimer(formulaireHtml(liste));
 };
 
 async function ouvrirPdf(id){
@@ -850,7 +853,7 @@ function planchesHtml(liste){
     const page = liste.slice(i,i+parPage);
     html += `<div class="page">
       <h1>Justificatifs — ${esc(nomMois(moisAffiche))}</h1>
-      <p class="ss">Les numéros renvoient aux lignes du récapitulatif. Page ${i/parPage+1} sur ${pages}.</p>
+      <p class="ss">Les numéros renvoient aux lignes du formulaire. Page ${i/parPage+1} sur ${pages}.</p>
       <div class="planche" style="--cols:${mep.cols};--hmax:${mep.hmax}">${page.map(a=>`<figure>
         <img src="${urlPhoto(a)}" alt="">
         <figcaption>N° ${a.numero} · ${a.date.slice(8,10)}/${a.date.slice(5,7)} · ${esc(a.nom)} · ${euro(a.prix)}</figcaption>
@@ -880,7 +883,7 @@ document.getElementById("imprDossier").onclick = ()=>{
   const liste = duMois();
   if(!liste.length){ dire("Aucun achat pour ce mois."); return; }
   const images = liste.filter(estImage);
-  imprimer(declarationHtml(liste) + planchesHtml(images));
+  imprimer(formulaireHtml(liste) + planchesHtml(images));
   if(images.length) marquerImprimes(images, "Dossier sorti. Les justificatifs images sont marqués joints.");
   const pdfs = liste.filter(a=>estPdf(a) && !a.imprime).length;
   if(pdfs) setTimeout(()=>dire(pdfs+" PDF restent à imprimer à part, plus bas dans le récap."), 3400);
@@ -992,12 +995,9 @@ if("serviceWorker" in navigator &&
       const r = (await tous("reglages"));
       const p = r.find(x=>x.id==="parPage");
       if(p && MISE_EN_PAGE[p.valeur]) parPage = p.valeur;
-      const e = r.find(x=>x.id==="entete");
-      if(e && e.valeur) entete = e.valeur;
       var dejaVu = !!r.find(x=>x.id==="bienvenueVue");
     }catch(e){}
     majParPage();
-    rendreEntete();
     if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{});
     rendre();
     if(!dejaVu && !types.length && !achats.length) ouvrirFeuille(fBienvenue);
