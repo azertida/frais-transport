@@ -224,7 +224,7 @@ input[type=file]{display:none}
     <div class="sommes" id="etatJustif"></div>
     <label>Justificatifs par page imprimée</label>
     <div class="choix" id="parPage">
-      <button data-n="2">2 — captures longues</button>
+      <button data-n="2">2 — grand format</button>
       <button data-n="4">4 — lisible</button>
       <button data-n="6">6 — compact</button>
     </div>
@@ -843,7 +843,7 @@ async function ouvrirPdf(id){
   dire("Imprime-le depuis le partage, puis agrafe-le. Décoche si l'impression a échoué.");
 }
 
-const MISE_EN_PAGE = {2:{cols:1,hmax:"104mm"}, 4:{cols:2,hmax:"98mm"}, 6:{cols:2,hmax:"62mm"}};
+const MISE_EN_PAGE = {2:{cols:2,hmax:"205mm"}, 4:{cols:2,hmax:"98mm"}, 6:{cols:2,hmax:"62mm"}};
 let parPage = 4;
 
 function planchesHtml(liste){
